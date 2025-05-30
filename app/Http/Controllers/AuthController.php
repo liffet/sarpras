@@ -88,21 +88,28 @@ public function register()
     }
 
 
-   public function adminDashboard()
-    {
-        // Hanya boleh diakses oleh admin
-        if (Auth::user()->role !== 'admin') {
-            abort(403);
-        }
-
-        return view('admin', [
-            'totalUsers' => User::where('role', '!=', 'admin')->count(),
-            'totalItems' => Barang::count(),
-            'activeLoans' => Peminjaman::where('status', 'disetujui')->count(),
-            'todayReturns' => Pengembalian::whereDate('tanggal_pengembalian', today())
-                                ->where('status', 'diproses')
-                                ->count()
-        ]);
+ public function adminDashboard()
+{
+    if (Auth::user()->role !== 'admin') {
+        abort(403);
     }
+
+    // Ambil data yang dibutuhkan untuk modal laporan
+    $barang = Barang::with('kategori')->get();
+    $peminjaman = Peminjaman::with('user', 'barang')->get();
+    $pengembalian = Pengembalian::with('peminjaman')->get();
+
+    return view('admin', [
+        'totalUsers' => User::where('role', '!=', 'admin')->count(),
+        'totalItems' => Barang::count(),
+        'activeLoans' => Peminjaman::where('status', 'disetujui')->count(),
+        'todayReturns' => Pengembalian::whereDate('tanggal_pengembalian', today())
+                                    ->where('status', 'diproses')
+                                    ->count(),
+        'barang' => $barang,
+        'peminjaman' => $peminjaman,
+        'pengembalian' => $pengembalian,
+    ]);
+}
 
 }

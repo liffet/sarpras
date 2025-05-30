@@ -8,54 +8,61 @@ use App\Http\Controllers\Api\BarangApiController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\PengembalianController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-*/
+// ============================
+// 🔐 AUTH
+// ============================
 
-//  Auth & User
 Route::post('/login', [AuthApiController::class, 'login']);
-Route::middleware('auth:sanctum')->delete('/logout', [AuthApiController::class, 'logoutApi']);
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-Route::get('/users', [UserController::class, 'index']);
 
-//  Barang
+Route::middleware('auth:sanctum')->group(function () {
+    Route::delete('/logout', [AuthApiController::class, 'logoutApi']);
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+});
+
+// ============================
+// 👤 USER LIST (opsional admin)
+// ============================
+Route::get('/users', [UserController::class, 'index']); // admin only (optional)
+
+// ============================
+// 📦 BARANG
+// ============================
+
 Route::prefix('barang')->group(function () {
     Route::get('/', [BarangApiController::class, 'index']);
     Route::get('/{id}', [BarangApiController::class, 'show']);
+    
+    // Barang hanya untuk admin (bisa dibungkus role:admin)
     Route::post('/', [BarangApiController::class, 'store']);
     Route::put('/{id}', [BarangApiController::class, 'update']);
     Route::delete('/{id}', [BarangApiController::class, 'destroy']);
 });
-Route::post('/admin/barang', [BarangApiController::class, 'apiStore']); // Optional: bisa dipindah ke group admin
+Route::post('/admin/barang', [BarangApiController::class, 'apiStore']); // opsional
 
-//  Peminjaman
-Route::prefix('peminjaman')->group(function () {
-    Route::get('/', [PeminjamanController::class, 'index']);
-    Route::get('/create', [PeminjamanController::class, 'create']);
-    Route::get('/{id}', [PeminjamanController::class, 'show']);
-    Route::get('/{id}/edit', [PeminjamanController::class, 'edit']);
-    Route::post('/', [PeminjamanController::class, 'store']);
-    Route::put('/{id}', [PeminjamanController::class, 'update']);
-    Route::delete('/{id}', [PeminjamanController::class, 'destroy']);
-});
-
-//Update status peminjaman (gunakan hanya satu method!)
-Route::put('/admin/peminjaman/{id}/{status}', [PeminjamanController::class, 'apiUpdateStatus']);
-
-//  Pengembalian
-
-
-// Update status peminjaman: menunggu -> disetujui / ditolak / selesai
-Route::put('/admin/peminjaman/{id}/status/{status}', [PeminjamanController::class, 'apiUpdateStatus'])
-    ->name('peminjaman.updateStatus');
-
-
+// ============================
+// 📥 PEMINJAMAN
+// ============================
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/pengembalian', [PengembalianController::class, 'store']);
-    Route::get('/pengembalian/{id}', [PengembalianController::class, 'show']);
+    Route::prefix('peminjaman')->group(function () {
+        Route::get('/', [PeminjamanController::class, 'index']); // user: lihat peminjaman miliknya
+        Route::post('/', [PeminjamanController::class, 'store']); // user: ajukan peminjaman
+
+    });
+
+    // ADMIN update status peminjaman (gunakan role:admin jika punya middleware)
+    Route::put('/admin/peminjaman/{id}/status/{status}', [PeminjamanController::class, 'apiUpdateStatus'])->name('peminjaman.updateStatus');
+});
+
+// ============================
+// 🔁 PENGEMBALIAN
+// ============================
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('pengembalian')->group(function () {
+        Route::post('/{id}', [PengembalianController::class, 'store']); // user: ajukan pengembalian (dengan foto)
+        Route::get('/{id}', [PengembalianController::class, 'show']);   // user/admin: lihat detail pengembalian
+    });
 });

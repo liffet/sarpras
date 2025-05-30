@@ -9,13 +9,10 @@ class PeminjamanController extends Controller
 {
     public function index()
     {
-       
-        $peminjaman = Peminjaman::with(['user',])->latest()->get();
-
+        $peminjaman = Peminjaman::with(['user'])->latest()->get();
         return view('peminjaman.index', compact('peminjaman'));
     }
 
-   
     public function approve($id)
     {
         $peminjaman = Peminjaman::with('barang')->findOrFail($id);
@@ -24,15 +21,12 @@ class PeminjamanController extends Controller
             return redirect()->route('peminjaman.index')->with('error', 'Peminjaman sudah diproses.');
         }
 
-     
         if ($peminjaman->barang->stok < $peminjaman->jumlah) {
             return redirect()->route('peminjaman.index')->with('error', 'Stok barang "' . $peminjaman->barang->nama_barang . '" tidak mencukupi.');
         }
 
-  
         $peminjaman->barang->decrement('stok', $peminjaman->jumlah);
 
-       
         $peminjaman->update([
             'status' => 'disetujui',
         ]);
@@ -55,23 +49,19 @@ class PeminjamanController extends Controller
         return redirect()->route('peminjaman.index')->with('success', 'Peminjaman berhasil ditolak.');
     }
 
- 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
             'barang_id' => 'required|exists:barang,id',
             'jumlah' => 'required|integer|min:1',
             'tanggal_pinjam' => 'required|date',
-            'tanggal_kembali' => 'required|date|after_or_equal:tanggal_pinjam',
         ]);
 
         $peminjaman = Peminjaman::create([
-            'user_id' => $validated['user_id'],
+            'user_id' => auth()->id(), // otomatis dari user yang login
             'barang_id' => $validated['barang_id'],
             'jumlah' => $validated['jumlah'],
             'tanggal_pinjam' => $validated['tanggal_pinjam'],
-            'tanggal_kembali' => $validated['tanggal_kembali'],
             'status' => 'pending',
         ]);
 
@@ -81,7 +71,6 @@ class PeminjamanController extends Controller
         ], 201);
     }
 
-  
     public function apiUpdateStatus($id, $status)
     {
         if (!in_array($status, ['disetujui', 'ditolak'])) {
@@ -95,7 +84,6 @@ class PeminjamanController extends Controller
         }
 
         if ($status === 'disetujui') {
-         
             if ($peminjaman->barang->stok < $peminjaman->jumlah) {
                 return response()->json(['message' => 'Stok barang "' . $peminjaman->barang->nama_barang . '" tidak mencukupi.'], 400);
             }
@@ -105,10 +93,11 @@ class PeminjamanController extends Controller
 
         $peminjaman->update(['status' => $status]);
 
-        return response()->json(['message' => 'Status berhasil diubah menjadi ' . $status, 'data' => $peminjaman]);
- 
+        return response()->json([
+            'message' => 'Status berhasil diubah menjadi ' . $status,
+            'data' => $peminjaman
+        ]);
     }
 
-    
-        
+
 }

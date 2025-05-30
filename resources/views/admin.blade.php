@@ -31,6 +31,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
 <body class="bg-gray-50 text-gray-800 min-h-screen font-sans">
 
     <!-- Container -->
@@ -54,6 +56,8 @@
                 </div>
             </div>
 
+            <aside class="w-64 bg-gradient-to-b from-primary-800 to-primary-900 text-white flex flex-col shadow-xl transition-all duration-300 transform hover:shadow-2xl">
+            
             <nav class="flex flex-col p-4 space-y-1 flex-grow">
                 <p class="text-xs text-primary-400 uppercase font-bold px-3 pt-4 pb-2 tracking-wider">Menu Utama</p>
                 <a href="#"
@@ -83,11 +87,49 @@
                     <i class="fas fa-exchange-alt w-5 mr-2 text-primary-200"></i>
                     <span>Pengembalian</span>
                 </a>
-                <a href="#"
-                    class="flex items-center px-3 py-2.5 rounded-lg hover:bg-primary-700 transition-all duration-200 hover:shadow-md">
+             <!-- Sidebar -->
+      <div x-data="{ laporanOpen: false }" class="flex flex-col">
+            <button
+                @click="laporanOpen = !laporanOpen"
+                class="flex items-center justify-between w-full px-3 py-2.5 rounded-lg hover:bg-primary-700 transition-all duration-200 hover:shadow-md text-left"
+            >
+                <div class="flex items-center">
                     <i class="fas fa-file-chart-line w-5 mr-2 text-primary-200"></i>
                     <span>Laporan</span>
+                </div>
+                <i
+                    :class="laporanOpen ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"
+                    class="text-primary-200"
+                ></i>
+            </button>
+            <div
+                x-show="laporanOpen"
+                class="mt-1 pl-8 flex flex-col space-y-1 overflow-hidden transition-all duration-300"
+                style="display: none;"
+            >
+                <a
+                    href="{{ route('laporan.barang') }}"
+                    class="px-3 py-2 rounded-lg hover:bg-primary-700 transition-all duration-200 hover:shadow-md"
+                >
+                    Laporan Barang
                 </a>
+                <a
+                    href="{{ route('laporan.peminjaman') }}"
+                    class="px-3 py-2 rounded-lg hover:bg-primary-700 transition-all duration-200 hover:shadow-md"
+                >
+                    Laporan Peminjaman
+                </a>
+                <a
+                    href="{{ route('laporan.pengembalian') }}"
+                    class="px-3 py-2 rounded-lg hover:bg-primary-700 transition-all duration-200 hover:shadow-md"
+                >
+                    Laporan Pengembalian
+                </a>
+            </div>
+        </div>
+
+    
+</aside>
 
             </nav>
 
@@ -193,7 +235,7 @@
                         <h3 class="text-lg font-semibold text-gray-800">Aksi Cepat</h3>
                     </div>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-6">
-                        <a href="{{ route('pengguna.create') }}" class="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                        <a href="{{ route('pengguna.index') }}" class="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors duration-200">
                             <div class="p-3 rounded-full bg-primary-100 text-primary-600 mb-2">
                                 <i class="fas fa-user-plus text-xl"></i>
                             </div>
@@ -205,11 +247,11 @@
                             </div>
                             <span class="text-sm font-medium text-center">Tambah Barang</span>
                         </a>
-                        <a href="" class="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                        <a href="{{ route('peminjaman.index') }}" class="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors duration-200">
                             <div class="p-3 rounded-full bg-orange-100 text-orange-600 mb-2">
                                 <i class="fas fa-hand-holding text-xl"></i>
                             </div>
-                            <span class="text-sm font-medium text-center">Buat Peminjaman</span>
+                            <span class="text-sm font-medium text-center">Peminjaman</span>
                         </a>
                         <a href="#" class="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors duration-200">
                             <div class="p-3 rounded-full bg-purple-100 text-purple-600 mb-2">

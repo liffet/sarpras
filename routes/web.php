@@ -9,7 +9,8 @@ use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\PengembalianController;
 use App\Models\Barang;
 use App\Models\KategoriBarang;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LaporanController;
+use Illuminate\Support\Facades\Storage;
 
 
 /*
@@ -27,6 +28,20 @@ Route::get('/', function () {
 
 
 
+Route::get('/gambar/{folder}/{filename}', function ($folder, $filename) {
+    $path = "barang/{$filename}";
+
+    if (!Storage::disk('public')->exists($path)) {
+        abort(404);
+    }
+
+    $file = Storage::disk('public')->get($path);
+    $mime = Storage::disk('public')->mimeType($path);
+
+    return response($file, 200)->header('Content-Type', $mime);
+});
+
+
 
 // Auth routes
 Route::get('/login', [AuthController::class, 'login'])->name('login');
@@ -41,6 +56,14 @@ Route::get('/admin/pendataan', function () {
     $barangs = Barang::with('kategori')->get();
     return view('pendataan', compact('kategori', 'barangs'));
 })->name('admin.pendataan');
+
+
+
+Route::prefix('laporan')->group(function () {
+    Route::get('/barang', [LaporanController::class, 'barang'])->name('laporan.barang');
+    Route::get('/peminjaman', [LaporanController::class, 'peminjaman'])->name('laporan.peminjaman');
+    Route::get('/pengembalian', [LaporanController::class, 'pengembalian'])->name('laporan.pengembalian');
+});
 
 // Group untuk route yang memerlukan login
 Route::middleware(['auth'])->prefix('admin')->group(function () {

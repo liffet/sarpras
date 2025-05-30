@@ -14,7 +14,6 @@ return new class extends Migration
             $table->foreignId('barang_id')->constrained('barang')->onDelete('cascade');
             $table->integer('jumlah');
             $table->date('tanggal_pinjam');
-            $table->date('tanggal_kembali');
             $table->enum('status', ['pending', 'disetujui', 'ditolak', 'selesai'])->default('pending');
             $table->timestamps();
         });
