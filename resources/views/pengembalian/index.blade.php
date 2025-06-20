@@ -28,6 +28,8 @@
             }
         }
     </script>
+    
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -35,71 +37,8 @@
 
     <!-- Container -->
     <div class="flex min-h-screen">
-
         <!-- Sidebar -->
-        <aside class="w-64 bg-gradient-to-b from-primary-800 to-primary-900 text-white flex flex-col shadow-xl">
-            <div class="p-5 border-b border-primary-700 flex items-center justify-between">
-                <h1 class="text-2xl font-bold tracking-wide flex items-center space-x-2">
-                    <i class="fas fa-tools text-primary-300"></i>
-                    <span>SISFO <span class="text-primary-300">SARPRAS</span></span>
-                </h1>
-            </div>
-
-            <div class="p-4 border-b border-primary-700 flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center">
-                    <i class="fas fa-user text-primary-100"></i>
-                </div>
-                <div>
-                    <p class="font-medium">{{ auth()->user()->name }}</p>
-                    <p class="text-xs text-primary-300">Administrator</p>
-                </div>
-            </div>
-
-            <nav class="flex flex-col p-4 space-y-1 flex-grow">
-                <p class="text-xs text-primary-400 uppercase font-bold px-3 pt-4 pb-2 tracking-wider">Menu Utama</p>
-                <a href="{{ route('admin') }}"
-                    class="flex items-center px-3 py-2.5 rounded-lg hover:bg-primary-700 transition-all duration-200">
-                    <i class="fas fa-chart-pie w-5 mr-2 text-primary-200"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="{{ route('pengguna.index') }}"
-                    class="flex items-center px-3 py-2.5 rounded-lg hover:bg-primary-700 transition-all duration-200">
-                    <i class="fas fa-users w-5 mr-2 text-primary-200"></i>
-                    <span>Pengguna</span>
-                </a>
-                <a href="{{ route('admin.pendataan') }}"
-                    class="flex items-center px-3 py-2.5 rounded-lg hover:bg-primary-700 transition-all duration-200">
-                    <i class="fas fa-clipboard-check w-5 mr-2 text-primary-200"></i>
-                    <span>Pendataan</span>
-                </a>
-                <a href="{{ route('peminjaman.index') }}"
-                    class="flex items-center px-3 py-2.5 rounded-lg hover:bg-primary-700 transition-all duration-200">
-                    <i class="fas fa-hand-holding w-5 mr-2 text-primary-200"></i>
-                    <span>Peminjaman</span>
-                </a>
-                <a href="{{ route('pengembalians.index') }}"
-                    class="flex items-center px-3 py-2.5 rounded-lg bg-primary-700 text-white font-medium">
-                    <i class="fas fa-exchange-alt w-5 mr-2 text-primary-200"></i>
-                    <span>Pengembalian</span>
-                </a>
-                <a href="#"
-                    class="flex items-center px-3 py-2.5 rounded-lg hover:bg-primary-700 transition-all duration-200">
-                    <i class="fas fa-file-chart-line w-5 mr-2 text-primary-200"></i>
-                    <span>Laporan</span>
-                </a>
-            </nav>
-
-            <div class="p-4 mt-auto border-t border-primary-700">
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button class="flex items-center text-sm text-primary-300 hover:text-white w-full px-3 py-2 rounded-lg hover:bg-primary-700 transition-all duration-200">
-                        <i class="fas fa-sign-out-alt mr-2"></i>
-                        <span>Keluar</span>
-                    </button>
-                </form>
-            </div>
-        </aside>
-
+       @include('layouts.sidebar')
         <!-- Main Content -->
         <div class="flex-1 flex flex-col overflow-hidden">
 
@@ -226,7 +165,7 @@
 
     <script>
         // Close flash messages
-        document.querySelectorAll('[class*="bg-"] button').forEach(button => {
+       document.querySelectorAll('.bg-green-100 button, .bg-red-100 button').forEach(button => {
             button.addEventListener('click', function() {
                 this.closest('div').style.display = 'none';
             });

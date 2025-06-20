@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use App\Models\KategoriBarang;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BarangController extends Controller
 {
@@ -37,7 +38,7 @@ class BarangController extends Controller
             'foto' => $foto,
         ]);
 
-        return redirect()->route('admin')->with('success', 'Barang berhasil ditambahkan.');
+        return redirect()->route('admin.pendataan')->with('success', 'Barang berhasil ditambahkan.');
     }
     public function edit($id)
 {
@@ -75,10 +76,10 @@ public function destroy($id)
     return redirect()->route('admin.pendataan')->with('success', 'Barang berhasil dihapus.');
 }
     public function index()
-    {
-        $barang = Barang::with('kategori')->get();
-        return view('barang.index', compact('barang'));
-    }
+{
+    $barang = DB::select("CALL listBarang()");
+    return view('barang.index', compact('barang'));
+}
     public function show($id)
     {               
         $barang = Barang::with('kategori')->findOrFail($id);

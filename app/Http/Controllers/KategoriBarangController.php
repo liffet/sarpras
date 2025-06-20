@@ -26,7 +26,7 @@ class KategoriBarangController extends Controller
             'nama_kategori' => $request->nama_kategori,
         ]);
 
-        return redirect()->route('admin')->with('success', 'Kategori berhasil ditambahkan!');
+        return redirect()->route('admin.pendataan')->with('success', 'Kategori berhasil ditambahkan!');
     }
     public function edit($id)
 {

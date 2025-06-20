@@ -1,41 +1,215 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Laporan Pengembalian</title>
+    <meta charset="UTF-8">
+    <title>Laporan Pengembalian - SISFO SARPRAS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-        <a href="{{ route('admin') }}">
+<body class="bg-gray-100 text-gray-800 min-h-screen font-sans">
 
-            <h2>Laporan Pengembalian</h2>
-        </a>
+<div class="flex min-h-screen">
+    @include('layouts.sidebar')
 
-    <form method="GET">
-        <label>Dari Tanggal: <input type="date" name="start_date" value="{{ request('start_date') }}"></label>
-        <label>Sampai Tanggal: <input type="date" name="end_date" value="{{ request('end_date') }}"></label>
-        <button type="submit">Filter</button>
-    </form>
+    <main class="flex-1 p-8">
+        <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
+            <div class="flex justify-between items-center mb-8 border-b border-gray-200 pb-4">
+                <div>
+                    <a href="{{ route('admin') }}" class="flex items-center text-primary-600 hover:text-primary-800 mb-2">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        <span class="text-sm">Kembali ke Dashboard</span>
+                    </a>
+                    <h2 class="text-3xl font-bold text-primary-700">
+                        <i class="fas fa-undo mr-3"></i>
+                        Laporan Pengembalian
+                    </h2>
+                    <p class="text-gray-600 mt-1">Daftar lengkap pengembalian barang</p>
+                </div>
+                <div class="flex flex-col items-end gap-3">
+                    <div class="text-sm text-gray-600 bg-gray-100 px-4 py-2 rounded-full">
+                        <i class="fas fa-calendar-alt mr-2 text-primary-500"></i>
+                        {{ date('d M Y') }}
+                    </div>
+                    <button onclick="downloadExcel()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition duration-300 flex items-center shadow-lg hover:shadow-xl">
+                        <i class="fas fa-download mr-2"></i>
+                        Download Excel
+                    </button>
+                </div>
+            </div>
 
-    <table border="1" cellpadding="8">
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Nama Peminjam</th>
-                <th>Barang</th>
-                <th>Tanggal Kembali</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($pengembalian as $item)
-            <tr>
-                <td>{{ $loop->iteration }}</td>
-                <td>{{ $item->peminjaman->user->name }}</td>
-                <td>{{ $item->peminjaman->barang->nama_barang }}</td>
-                <td>{{ $item->tanggal_pengembalian }}</td>
-                <td>{{ $item->status }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+            <!-- Table -->
+            <div class="overflow-x-auto shadow-lg rounded-lg">
+                <table class="min-w-full text-sm bg-white">
+                    <thead>
+                    <tr class="bg-gradient-to-r from-primary-100 to-primary-50 text-primary-800">
+                        <th class="px-6 py-4 text-left font-semibold tracking-wider">No</th>
+                        <th class="px-6 py-4 text-left font-semibold tracking-wider">Nama Peminjam</th>
+                        <th class="px-6 py-4 text-left font-semibold tracking-wider">Barang</th>
+                        <th class="px-6 py-4 text-left font-semibold tracking-wider">Tanggal Kembali</th>
+                        <th class="px-6 py-4 text-left font-semibold tracking-wider">Foto</th>
+                        <th class="px-6 py-4 text-left font-semibold tracking-wider">Status</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                    @foreach ($pengembalian as $item)
+                        <tr class="hover:bg-primary-50 transition-all">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="bg-primary-100 text-primary-800 text-sm font-semibold py-2 px-3 rounded-full">{{ $loop->iteration }}</span>
+                            </td>
+                            <td class="px-6 py-4 font-semibold text-gray-900">{{ $item->peminjaman->user->name }}</td>
+                            <td class="px-6 py-4">
+                                <span class="bg-primary-50 text-primary-700 text-xs py-1 px-3 rounded-full font-medium">
+                                    {{ $item->peminjaman->barang->nama_barang }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-700">{{ $item->tanggal_pengembalian }}</td>
+                            <td class="px-6 py-4">
+                                <img src="{{ asset('storage/' . $item->peminjaman->barang->foto) }}"
+                                     alt="Foto Barang"
+                                     class="h-12 w-12 object-cover rounded-md shadow-md border">
+                            </td>
+                            <td class="px-6 py-4">
+                                    <span class="bg-gray-100 text-gray-800 text-xs py-1 px-3 rounded-full font-medium">{{ $item->status }}</span> 
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-8 pt-6 border-t border-gray-200 text-sm text-gray-500 flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-info-circle mr-2 text-primary-500"></i>
+                        Total Pengembalian: <span class="font-semibold ml-1">{{ count($pengembalian) }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-chart-bar mr-2 text-primary-500"></i>
+                        Tepat Waktu: <span class="font-semibold ml-1">{{ $pengembalian->where('status', 'tepat_waktu')->count() }}</span>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <i class="fas fa-print mr-2 text-primary-500"></i>
+                    Dicetak pada: <span class="font-semibold ml-1">{{ date('d/m/Y H:i') }}</span>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    function downloadExcel() {
+        const excelData = [
+            ['No', 'Nama Peminjam', 'Barang', 'Tanggal Kembali', 'Foto (URL)', 'Status']
+        ];
+
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach((row, index) => {
+            const cells = row.querySelectorAll('td');
+            const no = index + 1;
+            const namaPeminjam = cells[1].textContent.trim();
+            const barang = cells[2].textContent.trim();
+            const tanggalKembali = cells[3].textContent.trim();
+            const fotoImg = cells[4].querySelector('img');
+            const foto = fotoImg ? fotoImg.src : '-';
+            const status = cells[5].textContent.trim();
+
+            excelData.push([no, namaPeminjam, barang, tanggalKembali, foto, status]);
+        });
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(excelData);
+
+        const range = XLSX.utils.decode_range(ws['!ref']);
+        const colWidths = [];
+
+        for (let col = range.s.c; col <= range.e.c; col++) {
+            let maxWidth = 20;
+            for (let row = range.s.r; row <= range.e.r; row++) {
+                const cell = ws[XLSX.utils.encode_cell({r: row, c: col})];
+                if (cell && cell.v) {
+                    const cellWidth = cell.v.toString().length;
+                    if (cellWidth > maxWidth) {
+                        maxWidth = cellWidth;
+                    }
+                }
+            }
+            colWidths.push({wch: Math.min(maxWidth + 3, 50)});
+        }
+
+        ws['!cols'] = colWidths;
+        XLSX.utils.book_append_sheet(wb, ws, 'Data Pengembalian');
+        const now = new Date();
+        const dateString = now.toISOString().split('T')[0];
+        const filename = `Laporan_Pengembalian_${dateString}.xlsx`;
+
+        XLSX.writeFile(wb, filename);
+        showNotification(`File ${filename} berhasil diunduh!`, 'success');
+    }
+
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-x-full max-w-sm`;
+
+        if (type === 'success') {
+            notification.className += ' bg-green-500 text-white';
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-3 text-xl"></i>
+                    <div>
+                        <p class="font-semibold">Berhasil!</p>
+                        <p class="text-sm">${message}</p>
+                    </div>
+                </div>`;
+        } else {
+            notification.className += ' bg-blue-500 text-white';
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-info-circle mr-3 text-xl"></i>
+                    <div>
+                        <p class="font-semibold">Info</p>
+                        <p class="text-sm">${message}</p>
+                    </div>
+                </div>`;
+        }
+
+        document.body.appendChild(notification);
+        setTimeout(() => notification.classList.remove('translate-x-full'), 100);
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        }, 4000);
+    }
+</script>
 </body>
 </html>
